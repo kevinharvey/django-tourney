@@ -1,3 +1,5 @@
+from random import shuffle
+
 from django.db import models
 from django.utils.text import slugify
 from django.core.exceptions import ValidationError
@@ -16,6 +18,43 @@ class Bracket(models.Model):
         self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
+    def _generate_matches(self, players):
+        """
+        Generate matches for a list of players
+        """
+        shuffle(players)
+
+        initial_matches = []
+        i = 0
+        while i < len(players):
+            match = Match(
+                player_1_init=players.pop(),
+                player_2_init=players.pop(),
+                bracket=self
+            )
+            match.save()
+            initial_matches.append(match)
+
+        def recurse(matches):
+            """
+            Make downstream matches recursively
+            """
+            new_matches = []
+            i = 0
+            while i < len(matches):
+                match = Match(
+                    previous_match_1=matches.pop(),
+                    previous_match_2=matches.pop(),
+                    bracket=self
+                )
+                match.save()
+                new_matches.append(match)
+
+            if len(new_matches) > 1:
+                recurse(new_matches)
+
+        recurse(initial_matches)
+        
 
 class Match(models.Model):
     bracket = models.ForeignKey(Bracket)

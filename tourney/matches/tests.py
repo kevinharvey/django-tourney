@@ -19,6 +19,16 @@ class BracketTestCase(TestCase):
         self.assertEqual(self.bracket.name, 'My Test Bracket')
         self.assertEqual(self.bracket.slug, 'my-test-bracket')
 
+    def test__generate_matches(self):
+        """
+        Test that we can generate a bracket from a list of players
+        """
+        players = mommy.make(Player, _quantity=16)
+
+        self.bracket._generate_matches(players=players)
+
+        self.assertEqual(Match.objects.all().count(), 15)
+        
 
 class MatchTestCase(TestCase):
 
