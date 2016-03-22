@@ -3,8 +3,21 @@ from django.core.exceptions import ValidationError
 
 from model_mommy import mommy
 
-from matches.models import Match
+from matches.models import Bracket, Match
 from players.models import Player
+
+
+class BracketTestCase(TestCase):
+
+    def setUp(self):
+        self.bracket = mommy.make(Bracket, name='My Test Bracket')
+
+    def test_basics(self):
+        """
+        Test the basic functionality of the Bracket model
+        """
+        self.assertEqual(self.bracket.name, 'My Test Bracket')
+        self.assertEqual(self.bracket.slug, 'my-test-bracket')
 
 
 class MatchTestCase(TestCase):
@@ -21,6 +34,7 @@ class MatchTestCase(TestCase):
         """
         self.assertIsInstance(self.match.player_1_init, Player)
         self.assertIsInstance(self.match.player_2_init, Player)
+        self.assertIsInstance(self.match.bracket, Bracket)
 
     def test_match_basics_with_matches(self):
         """

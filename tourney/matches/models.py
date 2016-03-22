@@ -1,10 +1,24 @@
 from django.db import models
+from django.utils.text import slugify
 from django.core.exceptions import ValidationError
 
 from players.models import Player
 
 
+class Bracket(models.Model):
+    name = models.CharField(max_length=100, help_text='The public name for the bracket')
+    slug = models.SlugField(max_length=100)
+
+    def save(self, *args, **kwargs):
+        """
+        Make a slug from Bracket.name
+        """
+        self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+
 class Match(models.Model):
+    bracket = models.ForeignKey(Bracket)
     player_1_init = models.ForeignKey(Player, blank=True, null=True,
                                       related_name='home_game_match',
                                       help_text='Set for first round matches')
