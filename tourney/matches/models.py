@@ -70,6 +70,10 @@ class Match(models.Model):
                                          related_name='subsequent_match_2')
     player_1_score = models.PositiveIntegerField(blank=True, null=True)
     player_2_score = models.PositiveIntegerField(blank=True, null=True)
+    round = models.PositiveIntegerField()
+    round_index = models.PositiveIntegerField(
+        help_text='The order of this match in the round (used for positioning).'
+    )
 
     @property
     def player_1(self):

@@ -27,8 +27,10 @@ class BracketTestCase(TestCase):
 
         self.bracket._generate_matches(players=players)
 
-        self.assertEqual(Match.objects.all().count(), 15)
-        
+        self.assertEqual(Match.objects.filter(round=1).count(), 8)
+        self.assertEqual(Match.objects.filter(round=2).count(), 4)
+        self.assertEqual(Match.objects.filter(round=3).count(), 2)
+        self.assertEqual(Match.objects.filter(round=4).count(), 1)
 
 class MatchTestCase(TestCase):
 
