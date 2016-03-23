@@ -1,3 +1,5 @@
+import json
+
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 
@@ -31,6 +33,61 @@ class BracketTestCase(TestCase):
         self.assertEqual(Match.objects.filter(round=2).count(), 4)
         self.assertEqual(Match.objects.filter(round=3).count(), 2)
         self.assertEqual(Match.objects.filter(round=4).count(), 1)
+
+    def test_to_json(self):
+        """
+        Test that we can generate the JSON required by jQuery bracket
+        """
+        match_1 = mommy.make(Match, player_1_init=mommy.make(Player, name='p1'),
+                                    player_2_init=mommy.make(Player, name='p2'),
+                                    bracket=self.bracket, round=1, round_index=0,
+                                    player_1_score=2, player_2_score=1)
+        match_2 = mommy.make(Match, player_1_init=mommy.make(Player, name='p3'),
+                                    player_2_init=mommy.make(Player, name='p4'),
+                                    bracket=self.bracket, round=1, round_index=1,
+                                    player_1_score=1, player_2_score=2)
+        match_3 = mommy.make(Match, player_1_init=mommy.make(Player, name='p5'),
+                                    player_2_init=mommy.make(Player, name='p6'),
+                                    bracket=self.bracket, round=1, round_index=2,
+                                    player_1_score=2, player_2_score=0)
+        match_4 = mommy.make(Match, player_1_init=mommy.make(Player, name='p7'),
+                                    player_2_init=mommy.make(Player, name='p8'),
+                                    bracket=self.bracket, round=1, round_index=3,
+                                    player_1_score=0, player_2_score=2)
+        match_5 = mommy.make(Match, bracket=self.bracket, round=2, round_index=0,
+                             previous_match_1=match_1, previous_match_2=match_2,
+                             player_1_score=2, player_2_score=1)
+        match_6 = mommy.make(Match, bracket=self.bracket, round=2, round_index=1,
+                             previous_match_1=match_3, previous_match_2=match_4,
+                             player_1_score=1, player_2_score=2)
+        match_7 = mommy.make(Match, bracket=self.bracket, round=3, round_index=0,
+                             previous_match_1=match_5, previous_match_2=match_6,
+                             player_1_score=2, player_2_score=0)
+
+        data = json.loads(self.bracket.to_json())
+        self.assertEqual(data['teams'], [
+            ['p1', 'p2'], ['p3', 'p4'], ['p5', 'p6'], ['p7', 'p8']
+        ])
+        self.assertEqual(data['results'],
+            [                       # list of brackets
+                [                   # list of rounds
+                    [               # first round
+                        [2,1],      # first matchup
+                        [1,2],
+                        [2,0],
+                        [0,2]
+                    ],
+                    [               # second round
+                        [2,1],
+                        [1,2]
+                    ],
+                    [               # third round
+                        [2,0]
+                    ]
+                ]
+            ]
+        )
+
 
 class MatchTestCase(TestCase):
 
