@@ -30,6 +30,7 @@ class Tournament(models.Model):
 class Bracket(models.Model):
     name = models.CharField(max_length=100, help_text='The public name for the bracket')
     slug = models.SlugField(max_length=100)
+    tournament = models.ForeignKey(Tournament)
 
     def save(self, *args, **kwargs):
         """
