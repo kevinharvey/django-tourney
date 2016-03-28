@@ -1,3 +1,12 @@
 from django.contrib import admin
+from django import forms
 
-# Register your models here.
+from players.models import Pool, Player
+
+
+class PoolAdmin(admin.ModelAdmin):
+    filter_horizontal = ('players',)
+
+
+admin.site.register(Pool, PoolAdmin)
+admin.site.register(Player)

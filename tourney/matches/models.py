@@ -26,6 +26,9 @@ class Tournament(models.Model):
         self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
+    def __str__(self):
+        return self.name
+
 
 class Bracket(models.Model):
     name = models.CharField(max_length=100, help_text='The public name for the bracket')
