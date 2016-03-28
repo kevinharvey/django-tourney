@@ -5,9 +5,24 @@ from django.core.exceptions import ValidationError
 
 from model_mommy import mommy
 
-from matches.models import Bracket, Match
+from matches.models import Bracket, Match, Tournament
 from players.models import Player
 
+
+class TournamentTestCase(TestCase):
+
+    def test_basics(self):
+        """
+        Test the basic functionality of Tournament
+        """
+        tournament = mommy.make(Tournament, name='My Test Tournament')
+        tournament.players.add(mommy.make(Player))
+        tournament.players.add(mommy.make(Player))
+
+        self.assertEqual(tournament.name, 'My Test Tournament')
+        self.assertEqual(tournament.slug, 'my-test-tournament')
+        self.assertEqual(tournament.players.count(), 2)
+        
 
 class BracketTestCase(TestCase):
 

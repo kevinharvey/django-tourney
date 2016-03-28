@@ -8,6 +8,19 @@ from django.core.exceptions import ValidationError
 from players.models import Player
 
 
+class Tournament(models.Model):
+    name = models.CharField(max_length=100, help_text='The public name of the tournament')
+    slug = models.SlugField(max_length=100)
+    players = models.ManyToManyField(Player)
+
+    def save(self, *args, **kwargs):
+        """
+        Make a slug from Tournament.name
+        """
+        self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+
 class Bracket(models.Model):
     name = models.CharField(max_length=100, help_text='The public name for the bracket')
     slug = models.SlugField(max_length=100)
