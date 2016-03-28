@@ -4,10 +4,12 @@ import datetime
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from django.core import mail
+from django.conf import settings
 
 from model_mommy import mommy
 
-from matches.models import Tournament, Bracket, Round, Match
+from matches.models import Tournament, Bracket, Round, Match, MatchNotification
 from players.models import Player, Pool
 
 
@@ -378,3 +380,51 @@ class MatchTestCase(TestCase):
                       previous_match_2=self.match)
 
         self.assertEqual(match.player_2, self.player_1)
+
+    def test_notify_players(self):
+        """
+        Test that we can send an email to the players informing them of their
+        opponent
+        """
+        self.match.round.end_datetime = timezone.now() + datetime.timedelta(days=1)
+        self.match.round.save()
+
+        self.match.notify_players()
+
+        email = mail.outbox[0]
+        self.assertIn(self.match.player_1.email, email.to)
+        self.assertIn(self.match.player_2.email, email.to)
+        self.assertIn(self.match.player_1.email, email.reply_to)
+        self.assertIn(self.match.player_2.email, email.reply_to)
+        self.assertNotIn(settings.DEFAULT_FROM_EMAIL, email.reply_to)
+        self.assertEqual(settings.DEFAULT_FROM_EMAIL, email.from_email)
+        self.assertEqual('Your Next Matchup', email.subject)
+
+        notification = MatchNotification.objects.filter(match=self.match).first()
+        self.assertAlmostEqual(notification.sent.strftime('%c'),
+                               timezone.now().strftime('%c'))
+
+    def test_notify_players_stops_if_already_sent(self):
+        """
+        Test that we do not send an email if we've already sent one
+        """
+        notification = mommy.make(MatchNotification, match=self.match)
+
+        message = self.match.notify_players()
+
+        self.assertEqual(message, 'The players in match {} have already been notified'.format(self.match.id))
+        self.assertEqual(len(mail.outbox), 0)
+
+
+class MatchNotificationTestCase(TestCase):
+
+    def test_basic(self):
+        """
+        Test the basic functionality of MatchNotifcation
+        """
+        notification = mommy.make(MatchNotification, match=mommy.make(
+            Match, player_1_init=mommy.make(Player), player_2_init=mommy.make(Player)
+        ))
+
+        self.assertIsInstance(notification.match, Match)
+        self.assertIsInstance(notification.sent, type(timezone.now()))

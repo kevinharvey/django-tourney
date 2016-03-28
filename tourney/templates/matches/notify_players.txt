@@ -1,0 +1,7 @@
+Hello {{ player_1_name }} and {{ player_2_name }},
+
+You are scheduled to play each other in the current round. Please complete your
+match by {{ round_end_datetime }} and send the results to
+kharvey@axialhealthcare.com. Simply reply to this email to contact one another.
+
+Thanks!

@@ -1,9 +1,13 @@
 from random import shuffle
 import json
 
+from django.conf import settings
 from django.db import models
-from django.utils.text import slugify
 from django.core.exceptions import ValidationError
+from django.core.mail import EmailMessage
+from django.template.loader import get_template
+from django.utils import timezone
+from django.utils.text import slugify
 
 from players.models import Player
 
@@ -196,3 +200,35 @@ class Match(models.Model):
             raise ValidationError('Either both player fields or both match fields must be set.')
 
         super().save(*args, **kwargs)
+
+    def notify_players(self):
+        """
+        Send an email to the players in a match, notifying of their partner and
+        when they need to complete their match
+        """
+        if self.notifications.count():
+            return 'The players in match {} have already been notified'.format(self.id)
+
+        template = get_template('matches/notify_players.txt')
+        message = template.render({
+            'player_1_name': self.player_1.name,
+            'player_2_name': self.player_2.name,
+            'round_end_datetime': self.round.end_datetime.strftime('%A, %B %d at %I:%M %p')
+        })
+
+        email = EmailMessage(
+            to=[self.player_1.email, self.player_2.email],
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            subject='Your Next Matchup',
+            reply_to=[self.player_1.email, self.player_2.email],
+            body=message
+        )
+        email.send()
+
+        notification = MatchNotification(match=self, sent=timezone.now())
+        notification.save()
+
+
+class MatchNotification(models.Model):
+    match = models.ForeignKey(Match, related_name='notifications')
+    sent = models.DateTimeField()
