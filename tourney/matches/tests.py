@@ -46,38 +46,41 @@ class BracketTestCase(TestCase):
 
         self.bracket._generate_matches(players=players)
 
-        self.assertEqual(Match.objects.filter(round=1).count(), 8)
-        self.assertEqual(Match.objects.filter(round=2).count(), 4)
-        self.assertEqual(Match.objects.filter(round=3).count(), 2)
-        self.assertEqual(Match.objects.filter(round=4).count(), 1)
+        self.assertEqual(Match.objects.filter(round__number=1).count(), 8)
+        self.assertEqual(Match.objects.filter(round__number=2).count(), 4)
+        self.assertEqual(Match.objects.filter(round__number=3).count(), 2)
+        self.assertEqual(Match.objects.filter(round__number=4).count(), 1)
 
     def test_to_json(self):
         """
         Test that we can generate the JSON required by jQuery bracket
         """
+        round_1 = mommy.make(Round, bracket=self.bracket, number=1)
+        round_2 = mommy.make(Round, bracket=self.bracket, number=2)
+        round_3 = mommy.make(Round, bracket=self.bracket, number=3)
         match_1 = mommy.make(Match, player_1_init=mommy.make(Player, name='p1'),
                                     player_2_init=mommy.make(Player, name='p2'),
-                                    bracket=self.bracket, round=1, round_index=0,
+                                    round=round_1, round_index=0,
                                     player_1_score=2, player_2_score=1)
         match_2 = mommy.make(Match, player_1_init=mommy.make(Player, name='p3'),
                                     player_2_init=mommy.make(Player, name='p4'),
-                                    bracket=self.bracket, round=1, round_index=1,
+                                    round=round_1, round_index=1,
                                     player_1_score=1, player_2_score=2)
         match_3 = mommy.make(Match, player_1_init=mommy.make(Player, name='p5'),
                                     player_2_init=mommy.make(Player, name='p6'),
-                                    bracket=self.bracket, round=1, round_index=2,
+                                    round=round_1, round_index=2,
                                     player_1_score=2, player_2_score=0)
         match_4 = mommy.make(Match, player_1_init=mommy.make(Player, name='p7'),
                                     player_2_init=mommy.make(Player, name='p8'),
-                                    bracket=self.bracket, round=1, round_index=3,
+                                    round=round_1, round_index=3,
                                     player_1_score=0, player_2_score=2)
-        match_5 = mommy.make(Match, bracket=self.bracket, round=2, round_index=0,
+        match_5 = mommy.make(Match, round=round_2, round_index=0,
                              previous_match_1=match_1, previous_match_2=match_2,
                              player_1_score=2, player_2_score=1)
-        match_6 = mommy.make(Match, bracket=self.bracket, round=2, round_index=1,
+        match_6 = mommy.make(Match, round=round_2, round_index=1,
                              previous_match_1=match_3, previous_match_2=match_4,
                              player_1_score=1, player_2_score=2)
-        match_7 = mommy.make(Match, bracket=self.bracket, round=3, round_index=0,
+        match_7 = mommy.make(Match, round=round_3, round_index=0,
                              previous_match_1=match_5, previous_match_2=match_6,
                              player_1_score=2, player_2_score=0)
 
@@ -159,7 +162,8 @@ class MatchTestCase(TestCase):
         self.player_1 = mommy.make(Player)
         self.player_2 = mommy.make(Player)
         self.match = mommy.make(Match, player_1_init=self.player_1,
-                                player_2_init=self.player_2)
+                                player_2_init=self.player_2,
+                                round=mommy.make(Round, bracket=mommy.make(Bracket)))
 
     def test_match_basics_with_players(self):
         """
@@ -167,7 +171,7 @@ class MatchTestCase(TestCase):
         """
         self.assertIsInstance(self.match.player_1_init, Player)
         self.assertIsInstance(self.match.player_2_init, Player)
-        self.assertIsInstance(self.match.bracket, Bracket)
+        self.assertIsInstance(self.match.round, Round)
 
     def test_match_basics_with_matches(self):
         """

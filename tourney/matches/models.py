@@ -41,37 +41,46 @@ class Bracket(models.Model):
         initial_matches = []
         i = 0
         while i < len(players):
+            round = Round(
+                bracket=self,
+                number=1
+            )
+            round.save()
             match = Match(
                 player_1_init=players.pop(),
                 player_2_init=players.pop(),
-                bracket=self,
-                round=1,
+                round=round,
                 round_index=int(i/2)
             )
             match.save()
             initial_matches.append(match)
 
-        def recurse(matches, round):
+        def recurse(matches, round_number):
             """
             Make downstream matches recursively
             """
+            new_round = Round(
+                bracket=self,
+                number=round_number
+            )
+            new_round.save()
+
             new_matches = []
             i = 0
             while i < len(matches):
                 match = Match(
                     previous_match_1=matches.pop(),
                     previous_match_2=matches.pop(),
-                    bracket=self,
-                    round=round,
+                    round=new_round,
                     round_index=int(i/2)
                 )
                 match.save()
                 new_matches.append(match)
 
             if len(new_matches) > 1:
-                recurse(matches=new_matches, round=round+1)
+                recurse(matches=new_matches, round_number=round_number+1)
 
-        recurse(matches=initial_matches, round=2)
+        recurse(matches=initial_matches, round_number=2)
 
     def to_json(self):
         """
@@ -79,20 +88,20 @@ class Bracket(models.Model):
         (http://www.aropupu.fi/bracket/)
         """
         data = {'teams':[], 'results':[[]]}
-        matches = Match.objects.filter(bracket=self).order_by('round', 'round_index')
+        matches = Match.objects.filter(round__bracket=self).order_by('round__number', 'round_index')
 
         for match in matches:
-            if match.round == 1:
+            if match.round.number == 1:
                 data['teams'].append([match.player_1.name, match.player_2.name])
 
-            if len(data['results'][0]) < match.round:
+            if len(data['results'][0]) < match.round.number:
                 data['results'][0].append([])
 
             result = []
             if (match.player_1_score is not None) and (match.player_2_score is not None):
                 result = [match.player_1_score, match.player_2_score]
 
-            data['results'][0][match.round-1].append(result)
+            data['results'][0][match.round.number-1].append(result)
 
         return json.dumps(data)
 
@@ -122,7 +131,6 @@ class Round(models.Model):
 
 
 class Match(models.Model):
-    bracket = models.ForeignKey(Bracket)
     player_1_init = models.ForeignKey(Player, blank=True, null=True,
                                       related_name='home_game_match',
                                       help_text='Set for first round matches')
@@ -135,7 +143,7 @@ class Match(models.Model):
                                          related_name='subsequent_match_2')
     player_1_score = models.PositiveIntegerField(blank=True, null=True)
     player_2_score = models.PositiveIntegerField(blank=True, null=True)
-    round = models.PositiveIntegerField()
+    round = models.ForeignKey(Round, blank=True, null=True)
     round_index = models.PositiveIntegerField(
         help_text='The order of this match in the round (used for positioning).'
     )
