@@ -1,6 +1,8 @@
 from random import shuffle
 import json
 
+import pytz
+
 from django.conf import settings
 from django.db import models
 from django.core.exceptions import ValidationError
@@ -209,11 +211,13 @@ class Match(models.Model):
         if self.notifications.count():
             return 'The players in match {} have already been notified'.format(self.id)
 
+        user_time_zone = pytz.timezone(settings.DEFAULT_USER_TIME_ZONE)
+
         template = get_template('matches/notify_players.txt')
         message = template.render({
             'player_1_name': self.player_1.name,
             'player_2_name': self.player_2.name,
-            'round_end_datetime': self.round.end_datetime.strftime('%A, %B %d at %I:%M %p')
+            'round_end_datetime': self.round.end_datetime.astimezone(user_time_zone).strftime('%A, %B %d at %I:%M %p %Z')
         })
 
         email = EmailMessage(

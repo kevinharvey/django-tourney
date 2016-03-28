@@ -109,6 +109,8 @@ USE_L10N = True
 
 USE_TZ = True
 
+DEFAULT_USER_TIME_ZONE = 'US/Central'
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
