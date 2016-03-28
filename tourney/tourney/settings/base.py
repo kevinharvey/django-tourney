@@ -109,10 +109,15 @@ USE_L10N = True
 
 USE_TZ = True
 
-DEFAULT_USER_TIME_ZONE = 'US/Central'
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+# Tourney-specific settings
+
+DEFAULT_ORGANIZER_EMAIL = 'webmaster@localhost'
+
+DEFAULT_USER_TIME_ZONE = 'US/Central'

@@ -218,12 +218,14 @@ class Match(models.Model):
         message = template.render({
             'player_1_name': self.player_1.name,
             'player_2_name': self.player_2.name,
-            'round_end_datetime': self.round.end_datetime.astimezone(user_time_zone).strftime('%A, %B %d at %I:%M %p %Z')
+            'round_end_datetime': self.round.end_datetime.astimezone(user_time_zone).strftime('%A, %B %d at %I:%M %p %Z'),
+            'organizer_email': settings.DEFAULT_ORGANIZER_EMAIL
         })
 
         email = EmailMessage(
             to=[self.player_1.email, self.player_2.email],
             from_email=settings.DEFAULT_FROM_EMAIL,
+            bcc=[settings.DEFAULT_ORGANIZER_EMAIL],
             subject='Your Next Matchup',
             reply_to=[self.player_1.email, self.player_2.email],
             body=message
