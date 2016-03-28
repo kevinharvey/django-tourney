@@ -97,6 +97,30 @@ class Bracket(models.Model):
         return json.dumps(data)
 
 
+class Round(models.Model):
+    bracket_pool_help_text = 'Set either the bracket or pool field'
+    number = models.PositiveIntegerField()
+    bracket = models.ForeignKey(Bracket, blank=True, null=True,
+                                help_text=bracket_pool_help_text)
+    pool = models.ForeignKey('players.Pool', blank=True, null=True,
+                             help_text=bracket_pool_help_text)
+    start_datetime = models.DateTimeField(blank=True, null=True)
+    end_datetime = models.DateTimeField(blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        """
+        Disallow the bracket and pool fields to be set simultaneously
+        """
+        error_message = 'A round must be part of a single Pool or a single Bracket'
+        if self.bracket and self.pool:
+            raise ValidationError(error_message)
+
+        if (not self.bracket) and (not self.pool):
+            raise ValidationError(error_message)
+
+        super().save(*args, **kwargs)
+
+
 class Match(models.Model):
     bracket = models.ForeignKey(Bracket)
     player_1_init = models.ForeignKey(Player, blank=True, null=True,

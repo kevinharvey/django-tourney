@@ -1,12 +1,14 @@
 import json
+import datetime
 
 from django.test import TestCase
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 from model_mommy import mommy
 
-from matches.models import Bracket, Match, Tournament
-from players.models import Player
+from matches.models import Tournament, Bracket, Round, Match
+from players.models import Player, Pool
 
 
 class TournamentTestCase(TestCase):
@@ -22,7 +24,7 @@ class TournamentTestCase(TestCase):
         self.assertEqual(tournament.name, 'My Test Tournament')
         self.assertEqual(tournament.slug, 'my-test-tournament')
         self.assertEqual(tournament.players.count(), 2)
-        
+
 
 class BracketTestCase(TestCase):
 
@@ -102,6 +104,53 @@ class BracketTestCase(TestCase):
                 ]
             ]
         )
+
+
+class RoundTestCase(TestCase):
+
+    def setUp(self):
+        self.round = mommy.make(Round, bracket=mommy.make(Bracket))
+
+    def test_round_cannot_have_bracket_and_pool(self):
+        """
+        Test that Round cannot have a simultaneous bracket and pool
+        """
+        self.round.pool = mommy.make(Pool)
+
+        with self.assertRaises(ValidationError):
+            self.round.save()
+
+    def test_round_must_have_one_of_bracket_or_pool(self):
+        """
+        Test that Round must have one of bracket or pool set
+        """
+        self.round.bracket = None
+
+        with self.assertRaises(ValidationError):
+            self.round.save()
+
+    def test_round_can_set_pool(self):
+        """
+        Test that we can set the pool field
+        """
+        self.round.bracket = None
+        self.round.pool = mommy.make(Pool)
+
+        self.round.save()
+
+        self.assertIsInstance(self.round.pool, Pool)
+
+    def test_round_can_set_start_and_end_datetimes(self):
+        """
+        Test that we can set the start_datetime and end_datetime fields
+        """
+        self.round.start_datetime = timezone.now() - datetime.timedelta(hours=1)
+        self.round.end_datetime = timezone.now() + datetime.timedelta(hours=1)
+
+        self.round.save()
+
+        self.round.refresh_from_db()
+        self.assertLess(self.round.start_datetime, self.round.end_datetime)
 
 
 class MatchTestCase(TestCase):
