@@ -25,3 +25,5 @@ EMAIL_HOST_PASSWORD = get_environment_variable('EMAIL_HOST_PASSWORD')
 
 DEFAULT_FROM_EMAIL = get_environment_variable('DEFAULT_FROM_EMAIL')
 DEFAULT_ORGANIZER_EMAIL = get_environment_variable('DEFAULT_ORGANIZER_EMAIL')
+
+STATIC_ROOT = get_environment_variable('STATIC_ROOT')
