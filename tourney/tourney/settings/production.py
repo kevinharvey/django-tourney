@@ -2,6 +2,11 @@ import os
 
 from tourney.settings.base import *
 
+WSGI_APPLICATION = 'tourney.wsgi.application'
+
+
+ALLOWED_HOSTS = [os.environ.get('SERVER_NAME')]
+
 
 SECRET_KEY = get_environment_variable('DJANGO_SECRET_KEY')
 
