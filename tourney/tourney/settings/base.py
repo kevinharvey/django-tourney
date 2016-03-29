@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 
 import os
 
+from django.core.exceptions import ImproperlyConfigured
+
+
 def get_environment_variable(variable_name):
     """
     Get the environment variable or return an exception
