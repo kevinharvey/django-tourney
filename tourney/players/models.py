@@ -25,7 +25,11 @@ class Pool(models.Model):
 
         rounds = []
         matches = []
-        iterator = list(range(self.players.count()))
+        players = [player for player in self.players.all()]
+
+        if len(players) % 2 != 0: players.append(None)
+
+        iterator = list(range(len(players)))
         for x in iterator:
             if x == 0: continue
             round = Round(pool=self, number=x)
@@ -33,20 +37,23 @@ class Pool(models.Model):
             rounds.append(round)
 
         for x in iterator:
+            if not players[x]: continue
 
             others_iterator = iterator.copy()
             others_iterator.remove(x)
 
             for y in others_iterator:
-                match_exists = Match.objects.filter(player_1_init=self.players.all()[x], player_2_init=self.players.all()[y]).exists()
-                inverse_match_exists = Match.objects.filter(player_1_init=self.players.all()[y], player_2_init=self.players.all()[x]).exists()
+                if not players[y]: continue
+                
+                match_exists = Match.objects.filter(player_1_init=players[x], player_2_init=players[y]).exists()
+                inverse_match_exists = Match.objects.filter(player_1_init=players[y], player_2_init=players[x]).exists()
 
                 if match_exists or inverse_match_exists:
                     continue
 
                 match = Match(
-                    player_1_init=self.players.all()[x],
-                    player_2_init=self.players.all()[y],
+                    player_1_init=players[x],
+                    player_2_init=players[y],
                     round=rounds[len(matches) % len(rounds)],
                     round_index=0
                 )

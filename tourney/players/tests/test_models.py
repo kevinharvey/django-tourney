@@ -20,26 +20,27 @@ class PlayerTestCase(TestCase):
 
 class PoolTestCase(TestCase):
 
+    def setUp(self, *args, **kwargs):
+        self.pool = mommy.make(Pool)
+
     def test_basics(self):
         """
         Test the basic functionality of Pool
         """
-        pool = mommy.make(Pool)
-        pool.players.add(mommy.make(Player))
-        pool.players.add(mommy.make(Player))
+        self.pool.players.add(mommy.make(Player))
+        self.pool.players.add(mommy.make(Player))
 
-        self.assertIsInstance(pool.tournament, Tournament)
-        self.assertEqual(pool.players.count(), 2)
+        self.assertIsInstance(self.pool.tournament, Tournament)
+        self.assertEqual(self.pool.players.count(), 2)
 
     def test__generate_matches(self):
         """
         Test that we can generate all the matches for a pool
         """
-        pool = mommy.make(Pool)
         for player in mommy.make(Player, _quantity=8):
-            pool.players.add(player)
+            self.pool.players.add(player)
 
-        pool._generate_matches()
+        self.pool._generate_matches()
 
         self.assertEqual(Round.objects.count(), 7)
         self.assertEqual(Match.objects.count(), 28)
@@ -47,3 +48,19 @@ class PoolTestCase(TestCase):
         with self.subTest():
             for x in range(1,8):
                 self.assertEqual(Match.objects.filter(round__number=x).count(), 4)
+
+    def test__generate_matches(self):
+        """
+        Test that we can generate matches for an odd number in a Pool
+        """
+        for player in mommy.make(Player, _quantity=5):
+            self.pool.players.add(player)
+
+        self.pool._generate_matches()
+
+        self.assertEqual(Round.objects.count(), 5)
+        self.assertEqual(Match.objects.count(), 10)
+
+        with self.subTest():
+            for x in range(1,5):
+                self.assertEqual(Match.objects.filter(round__number=x).count(), 2)
