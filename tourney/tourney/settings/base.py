@@ -12,6 +12,16 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 
 import os
 
+def get_environment_variable(variable_name):
+    """
+    Get the environment variable or return an exception
+    """
+    try:
+        return os.environ[variable_name]
+    except KeyError as e:
+        error_message = "Set the {} environment variable".format(variable_name)
+        raise ImproperlyConfigured(error_message)
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
