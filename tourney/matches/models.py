@@ -51,11 +51,10 @@ class Bracket(models.Model):
         initial_matches = []
         i = 0
         while i < len(players):
-            round = Round(
+            round, created = Round.objects.get_or_create(
                 bracket=self,
                 number=1
             )
-            round.save()
             match = Match(
                 player_1_init=players.pop(),
                 player_2_init=players.pop(),
@@ -69,11 +68,10 @@ class Bracket(models.Model):
             """
             Make downstream matches recursively
             """
-            new_round = Round(
+            new_round, created = Round.objects.get_or_create(
                 bracket=self,
                 number=round_number
             )
-            new_round.save()
 
             new_matches = []
             i = 0
