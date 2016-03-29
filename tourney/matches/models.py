@@ -141,7 +141,7 @@ class Round(models.Model):
         representation = 'Round {}'.format(self.number)
 
         if self.start_datetime:
-            representation = '{} ({} - {})'.format(representation, self.number, self.start_datetime.strftime('%b %d'), self.end_datetime.strftime('%b %d'))
+            representation = '{} ({} - {})'.format(representation, self.start_datetime.strftime('%b %d'), self.end_datetime.strftime('%b %d'))
 
         if self.pool:
             representation = 'Pool {} {}'.format(self.pool.id, representation)
