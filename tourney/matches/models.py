@@ -139,6 +139,11 @@ class Round(models.Model):
 
         super().save(*args, **kwargs)
 
+    def __str__(self):
+        if self.start_datetime:
+            return 'Round {} ({} - {})'.format(self.number, self.start_datetime.strftime('%b %d'), self.end_datetime.strftime('%b %d'))
+        return 'Round {}'.format(self.number)
+
 
 class Match(models.Model):
     player_1_init = models.ForeignKey(Player, blank=True, null=True,
