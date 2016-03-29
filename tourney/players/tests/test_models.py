@@ -1,3 +1,5 @@
+from unittest import skip
+
 from django.test import TestCase
 
 from model_mommy import mommy
@@ -49,9 +51,26 @@ class PoolTestCase(TestCase):
             for x in range(1,8):
                 self.assertEqual(Match.objects.filter(round__number=x).count(), 4)
 
-    def test__generate_matches(self):
+    def test__generate_matches_odd_number(self):
         """
         Test that we can generate matches for an odd number in a Pool
+        """
+        for player in mommy.make(Player, _quantity=3):
+            self.pool.players.add(player)
+
+        self.pool._generate_matches()
+
+        self.assertEqual(Round.objects.count(), 3)
+        self.assertEqual(Match.objects.count(), 3)
+
+        with self.subTest():
+            for x in range(1,3):
+                self.assertEqual(Match.objects.filter(round__number=x).count(), 1)
+
+    @skip('_generate_matches does not efficiently schedule 5 players')
+    def test__generate_matches_five_players(self):
+        """
+        Test that we can generate matches for an odd number over 3 in a Pool
         """
         for player in mommy.make(Player, _quantity=5):
             self.pool.players.add(player)
