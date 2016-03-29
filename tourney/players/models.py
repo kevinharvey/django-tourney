@@ -6,7 +6,7 @@ class Player(models.Model):
     email = models.EmailField()
 
     def __str__(self):
-        return self.name
+        return '{} ({})'.format(self.name, self.email)
 
 
 class Pool(models.Model):
