@@ -138,9 +138,18 @@ class Round(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
+        representation = 'Round {}'.format(self.number)
+
         if self.start_datetime:
-            return 'Round {} ({} - {})'.format(self.number, self.start_datetime.strftime('%b %d'), self.end_datetime.strftime('%b %d'))
-        return 'Round {}'.format(self.number)
+            representation = '{} ({} - {})'.format(representation, self.number, self.start_datetime.strftime('%b %d'), self.end_datetime.strftime('%b %d'))
+
+        if self.pool:
+            representation = 'Pool {} {}'.format(self.pool.id, representation)
+
+        if self.bracket:
+            representation = '{} {}'.format(self.bracket.name, representation)
+
+        return representation
 
 
 class Match(models.Model):
@@ -160,6 +169,9 @@ class Match(models.Model):
     round_index = models.PositiveIntegerField(
         help_text='The order of this match in the round (used for positioning).'
     )
+
+    def __str__(self):
+        return '{} vs. {}'.format(self.player_1, self.player_2)
 
     @property
     def player_1(self):
