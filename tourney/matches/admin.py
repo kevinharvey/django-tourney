@@ -4,7 +4,8 @@ from matches.models import Tournament, Bracket, Round, Match, MatchNotification
 
 
 class MatchAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'round',)
+    list_display = ('__str__', 'round', 'player_1_score', 'player_2_score',)
+    list_editable = ('player_1_score', 'player_2_score',)
     list_filter = ('round__pool', 'round__number',)
 
 

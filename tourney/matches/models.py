@@ -170,6 +170,9 @@ class Match(models.Model):
         help_text='The order of this match in the round (used for positioning).'
     )
 
+    class Meta:
+        verbose_name_plural = 'matches'
+
     def __str__(self):
         return '{} vs. {}'.format(self.player_1, self.player_2)
 
