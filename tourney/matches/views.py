@@ -1,3 +1,7 @@
-from django.shortcuts import render
+from django.views.generic import DetailView
 
-# Create your views here.
+from matches.models import Tournament
+
+
+class TournamentDetailView(DetailView):
+    model = Tournament

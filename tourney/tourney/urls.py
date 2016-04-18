@@ -16,6 +16,13 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 
+from matches.views import TournamentDetailView
+
 urlpatterns = [
+    # Admin
     url(r'^admin/', admin.site.urls),
+
+    # Tournaments
+    url(r'^(?P<slug>[-\w]+)/$', TournamentDetailView.as_view(),
+        name='tournament-detail'),
 ]
