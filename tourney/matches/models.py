@@ -194,7 +194,7 @@ class Match(models.Model):
         """
         Return the player with the highest score for the match
         """
-        if not self.player_1_score or not self.player_2_score:
+        if self.player_1_score is None or self.player_2_score is None:
             return
 
         if self.player_1_score > self.player_2_score:

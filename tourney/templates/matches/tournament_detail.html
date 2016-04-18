@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block page_title %}{{ object.name }} | {% endblock %}
+
+{% block content %}
+  <h2>{{ object.name }}</h2>
+
+  {% for pool in object.pool_set.all %}
+
+    {% if forloop.first %}
+      <h3>Pools</h3>
+    {% endif %}
+
+    {% if forloop.first or forloop.counter0|divisibleby:"3" %}
+      <div class="row">
+    {% endif %}
+
+      <div class="col-xs-12 col-md-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">{{ pool }}</div>
+          <div class="panel-body">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>W</th>
+                  <th>L</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for player in pool.get_player_standings %}
+                  <tr>
+                    <td>{{ player.name }}</td>
+                    <td>{{ player.wins }}</td>
+                    <td>{{ player.losses }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    {% if forloop.last or forloop.counter|divisibleby:"3" %}
+      </div>
+    {% endif %}
+
+  {% endfor %}
+
+{% endblock %}

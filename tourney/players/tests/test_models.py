@@ -83,3 +83,35 @@ class PoolTestCase(TestCase):
         with self.subTest():
             for x in range(1,5):
                 self.assertEqual(Match.objects.filter(round__number=x).count(), 2)
+
+    def test_get_player_standings(self):
+        """
+        Test that we can get a list of standings for a pool
+        """
+        player_1 = mommy.make(Player, name='player_1')
+        player_2 = mommy.make(Player, name='player_2')
+        player_3 = mommy.make(Player, name='player_3')
+        player_4 = mommy.make(Player, name='player_4')
+        self.pool.players.add(player_1, player_2, player_3, player_4)
+        round_1 = mommy.make(Round, pool=self.pool)
+        round_2 = mommy.make(Round, pool=self.pool)
+        round_3 = mommy.make(Round, pool=self.pool)
+        match_1 = mommy.make(Match, player_1_init=player_1, player_2_init=player_2,
+                                    player_1_score=0, player_2_score=2, round=round_1)
+        match_2 = mommy.make(Match, player_1_init=player_1, player_2_init=player_3,
+                                    player_1_score=2, player_2_score=0, round=round_2)
+        match_3 = mommy.make(Match, player_1_init=player_1, player_2_init=player_4,
+                                    player_1_score=2, player_2_score=0, round=round_3)
+        match_4 = mommy.make(Match, player_1_init=player_2, player_2_init=player_3,
+                                    player_1_score=2, player_2_score=0, round=round_3)
+        match_5 = mommy.make(Match, player_1_init=player_2, player_2_init=player_4,
+                                    player_1_score=2, player_2_score=0, round=round_2)
+        match_6 = mommy.make(Match, player_1_init=player_3, player_2_init=player_4,
+                                    player_1_score=0, player_2_score=2, round=round_1)
+
+        standings_list = self.pool.get_player_standings()
+
+        self.assertEqual(standings_list[0], {'name': 'player_2', 'wins': 3, 'losses': 0})
+        self.assertEqual(standings_list[1], {'name': 'player_1', 'wins': 2, 'losses': 1})
+        self.assertEqual(standings_list[2], {'name': 'player_4', 'wins': 1, 'losses': 2})
+        self.assertEqual(standings_list[3], {'name': 'player_3', 'wins': 0, 'losses': 3})
