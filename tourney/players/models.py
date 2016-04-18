@@ -62,3 +62,34 @@ class Pool(models.Model):
                 )
                 match.save()
                 rounds[scheduled_round] += [players[x], players[y]]
+
+    def get_player_standings(self):
+        """
+        Return a list of dictionaries describing the standings (player name and
+        win/loss record)
+        """
+        records = []
+        rounds = self.round_set.all()
+
+        for round_object in rounds:
+            for match in round_object.match_set.all():
+                if not any(d['name'] == match.player_1.name for d in records):
+                    records.append({'name': match.player_1.name, 'wins': 0, 'losses': 0})
+                if not any(d['name'] == match.player_2.name for d in records):
+                    records.append({'name': match.player_2.name, 'wins': 0, 'losses': 0})
+
+                player_1_record = next((record for record in records if record['name'] == match.player_1.name), None)
+                player_2_record = next((record for record in records if record['name'] == match.player_2.name), None)
+
+                if match.winner() == match.player_1:
+                    player_1_record['wins'] += 1
+                    player_2_record['losses'] += 1
+
+                if match.winner() == match.player_2:
+                    player_2_record['wins'] += 1
+                    player_1_record['losses'] += 1
+
+        records_by_losses = sorted(records, key=lambda k: k['losses'])
+        records_by_wins = sorted(records, key=lambda k: k['wins'], reverse=True)
+
+        return records_by_wins
