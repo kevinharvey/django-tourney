@@ -5,7 +5,7 @@ from tourney.settings.base import *
 WSGI_APPLICATION = 'tourney.wsgi.application'
 
 
-STATIC_ROOT = get_environment_variable('SITE_NAME')
+SITE_NAME = get_environment_variable('SITE_NAME')
 
 
 ALLOWED_HOSTS = [os.environ.get('SERVER_NAME')]
