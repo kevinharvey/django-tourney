@@ -1,9 +1,30 @@
 {% extends "base.html" %}
 
-{% block page_title %}{{ object.name }} | {% endblock %}
+{% block page_title %}{{ object.name }} | {% endblock page_title %}
+
+{% block extrastyle %}
+  <link rel="stylesheet" href="http://www.aropupu.fi/bracket/jquery-bracket/dist/jquery.bracket.min.css" />
+  <style type="text/css">
+    /* reset styles back to defaults for jQBracket */
+    .jQBracket .label {
+      color: black;
+      text-align: left;
+      font-weight: 500;
+      line-height: 1.428571429; /* matches Bootstrap */
+    }
+  </style>
+{% endblock extrastyle %}
 
 {% block content %}
   <h2>{{ object.name }}</h2>
+
+  {% if view.get_bracket_json %}
+    <div class="row">
+      <div class="col-xs-12">
+        <div id="djt-bracket"></div>
+      </div>
+    </div>
+  {% endif %}
 
   {% for pool in object.pool_set.all %}
 
@@ -47,4 +68,19 @@
 
   {% endfor %}
 
-{% endblock %}
+{% endblock content %}
+
+{% block extrascript %}
+  <script src="http://www.aropupu.fi/bracket/jquery-bracket/dist/jquery.bracket.min.js"></script>
+  {% if view.get_bracket_json %}
+    <script type="text/javascript">
+      var bracketData = {{ view.get_bracket_json|safe }};
+      $(function() {
+        $('#djt-bracket').bracket({
+          init: bracketData,
+          skipConsolationRound: true
+        })
+      });
+    </script>
+  {% endif %}
+{% endblock extrascript %}

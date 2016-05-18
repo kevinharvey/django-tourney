@@ -24,5 +24,5 @@ class TournamentDetailViewTestCase(TestCase):
         response = TournamentDetailView.as_view()(request, slug=self.tournament.slug)
 
         self.assertEqual(response.context_data['object'], self.tournament)
-        with self.assertNumQueries(5):
+        with self.assertNumQueries(7):
             response.render()
