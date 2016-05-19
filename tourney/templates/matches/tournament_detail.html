@@ -1,9 +1,10 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block page_title %}{{ object.name }} | {% endblock page_title %}
 
 {% block extrastyle %}
-  <link rel="stylesheet" href="http://www.aropupu.fi/bracket/jquery-bracket/dist/jquery.bracket.min.css" />
+  <link rel="stylesheet" href="{% static 'jquery.bracket.min.css' %}" />
   <style type="text/css">
     /* reset styles back to defaults for jQBracket */
     .jQBracket .label {
@@ -71,7 +72,7 @@
 {% endblock content %}
 
 {% block extrascript %}
-  <script src="http://www.aropupu.fi/bracket/jquery-bracket/dist/jquery.bracket.min.js"></script>
+  <script src="{% static 'jquery.bracket.min.js' %}"></script>
   {% if view.get_bracket_json %}
     <script type="text/javascript">
       var bracketData = {{ view.get_bracket_json|safe }};
