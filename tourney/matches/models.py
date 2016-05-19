@@ -96,7 +96,7 @@ class Bracket(models.Model):
         (http://www.aropupu.fi/bracket/)
         """
         data = {'teams':[], 'results':[[]]}
-        matches = Match.objects.filter(round__bracket=self).order_by('round__number', 'round_index')
+        matches = Match.objects.filter(round__bracket=self).order_by('round__number', 'round_index', 'id')
 
         for match in matches:
             if match.round.number == 1:
